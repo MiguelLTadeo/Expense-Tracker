@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	Email    string `gorm:"unique"`
-	Password string
-	Expenses []Expense
+	Email    string    `gorm:"unique" json:"email"`
+	Password string    `json:"password"`
+	Expenses []Expense `json:"expenses"`
 }
 
 func GetAll(db *gorm.DB) ([]User, error) {
