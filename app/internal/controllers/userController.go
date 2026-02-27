@@ -13,21 +13,28 @@ import (
 func CreateUser(db gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
-			fmt.Println(r.FormValue("email"))
-			email := r.FormValue("email")
-			password := r.FormValue("password")
-			password = utils.GetMD5Hash(password)
-			fmt.Println(email)
 
-			user := models.User{}
-			err := json.NewDecoder(r.Body).Decode(&user)
+			newUser := models.User{}
 
-			fmt.Println(r.FormValue("password"))
+			err := json.NewDecoder(r.Body).Decode(&newUser)
 
-			fmt.Println(user)
-			//result := db.Create(&user)
+			if err != nil {
+				http.Error(w, "Error reading Json: "+err.Error(), http.StatusBadRequest)
+			}
 
-			//print(result)
+			newUser.Password = utils.GetMD5Hash(newUser.Password)
+
+			result := db.Create(&newUser)
+
+			if result.Error != nil {
+				http.Error(w, "Error creating User: "+result.Error.Error(), http.StatusInternalServerError)
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+
+			w.WriteHeader(http.StatusCreated)
+
+			fmt.Fprintf(w, "User created, updated rows %d", result.RowsAffected)
 		}
 	}
 }
