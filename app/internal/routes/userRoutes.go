@@ -8,5 +8,8 @@ import (
 )
 
 func UserRoutes(db gorm.DB) {
-	http.HandleFunc("/user/create", controllers.CreateUser(db))
+	http.HandleFunc("/user/create", controllers.CreateUserHandler(db))
+	http.HandleFunc("/user/delete", controllers.DeleteUserHandler(db))
+	http.HandleFunc("/user/login", controllers.LoginUserhandler(db))
+
 }
