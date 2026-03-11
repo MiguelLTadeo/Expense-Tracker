@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -20,7 +19,7 @@ func CreateUser(db gorm.DB) http.HandlerFunc {
 			fmt.Println(email)
 
 			user := models.User{}
-			err := json.NewDecoder(r.Body).Decode(&user)
+			//err := json.NewDecoder(r.Body).Decode(&user)
 
 			fmt.Println(r.FormValue("password"))
 
@@ -28,6 +27,7 @@ func CreateUser(db gorm.DB) http.HandlerFunc {
 			//result := db.Create(&user)
 
 			//print(result)
+			//exemplo
 		}
 	}
 }
