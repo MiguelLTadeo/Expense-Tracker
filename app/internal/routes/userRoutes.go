@@ -3,10 +3,13 @@ package routes
 import (
 	"net/http"
 
-	"github.com/MiguelLTadeo/Expense-Tracker.git/internal/controllers"
+	"github.com/MiguelLTadeo/Expense-Tracker.git/internal/service/controllers"
 	"gorm.io/gorm"
 )
 
 func UserRoutes(db gorm.DB) {
-	http.HandleFunc("/user/create", controllers.CreateUser(db))
+	http.HandleFunc("/user/create", controllers.CreateUserHandler(db))
+	http.HandleFunc("/user/delete", controllers.DeleteUserHandler(db))
+	http.HandleFunc("/user/login", controllers.LoginUserhandler(db))
+	http.HandleFunc("/user/update", controllers.UpdateUserHandler(db))
 }

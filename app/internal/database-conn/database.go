@@ -3,7 +3,7 @@ package databaseConn
 import (
 	"log"
 
-	"github.com/MiguelLTadeo/Expense-Tracker.git/internal/models"
+	"github.com/MiguelLTadeo/Expense-Tracker.git/internal/service/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
