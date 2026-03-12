@@ -11,8 +11,9 @@ var secret = GoDotEnvVariable("SECRET_KEY")
 
 var secretKey = []byte(secret)
 
-type TokenResponse struct {
-	Token string `json:"token"`
+type Claims struct {
+	Email string `json:"email"`
+	jwt.RegisteredClaims
 }
 
 func CreateToken(email string) (string, error) {
@@ -20,7 +21,7 @@ func CreateToken(email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"email": email,
-			"exp":   time.Now().Add(time.Hour * 24).Unix(),
+			"exp":   time.Now().Add(time.Hour * 1).Unix(),
 		})
 
 	tokenString, err := token.SignedString(secretKey)
@@ -31,18 +32,16 @@ func CreateToken(email string) (string, error) {
 	return tokenString, nil
 }
 
-func VerifyToken(tokenString string) error {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func VerifyToken(tokenString string) (string, error) {
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
-	if err != nil {
-		return err
+	if err != nil || !token.Valid {
+		return "", fmt.Errorf("token inválido ou expirado")
 	}
 
-	if !token.Valid {
-		return fmt.Errorf("invalid token")
-	}
-
-	return nil
+	return claims.Email, nil
 }
