@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Expense struct {
 	gorm.Model
-	Description string `json:"description"`
-	Value       string `json:"value"`
-	UserID      uint   `json:"user_id"`
+	Description string  `json:"description"`
+	Value       float64 `json:"value"`
+	UserID      uint    `json:"user_id"`
 }
