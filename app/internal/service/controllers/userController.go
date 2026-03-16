@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/MiguelLTadeo/Expense-Tracker.git/internal/middleware"
@@ -20,7 +19,7 @@ type UserJson struct {
 	Confirm_password string `json:"confirm_password"`
 }
 
-func CreateUserHandler(db gorm.DB) http.HandlerFunc {
+func CreateUserHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 
@@ -114,7 +113,7 @@ func CreateUserHandler(db gorm.DB) http.HandlerFunc {
 	}
 }
 
-func LoginUserhandler(db gorm.DB) http.HandlerFunc {
+func LoginUserhandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 
@@ -207,15 +206,13 @@ func LoginUserhandler(db gorm.DB) http.HandlerFunc {
 	}
 }
 
-func DeleteUserHandler(db gorm.DB) http.HandlerFunc {
+func DeleteUserHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "DELETE" {
 
 			w.Header().Set("Content-Type", "application/json")
 
 			email, err := middleware.AuthToken(w, r, db)
-
-			fmt.Println(email)
 
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -228,7 +225,6 @@ func DeleteUserHandler(db gorm.DB) http.HandlerFunc {
 			} else {
 
 				db.Unscoped().Delete(&models.User{}, "email = ?", email)
-
 				w.WriteHeader(http.StatusOK)
 
 				err = json.NewEncoder(w).Encode(utils.SucessResponse{
@@ -245,7 +241,7 @@ func DeleteUserHandler(db gorm.DB) http.HandlerFunc {
 	}
 }
 
-func UpdateUserHandler(db gorm.DB) http.HandlerFunc {
+func UpdateUserHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "PUT" {
 
@@ -275,42 +271,46 @@ func UpdateUserHandler(db gorm.DB) http.HandlerFunc {
 				})
 
 				return
-			} else {
-				userExists := models.User{}
-
-				db.Where(&models.User{Email: email}).First(&userExists)
-
-				if userExists.Email == "" {
-					w.WriteHeader(http.StatusNotFound)
-
-					err = json.NewEncoder(w).Encode(utils.ErrorResponse{
-						Error: "User not found",
-					})
-				} else {
-					if db.Where("email = ?", updateUser.Email).First(&models.User{}).Error == nil {
-						w.WriteHeader(http.StatusConflict)
-
-						err = json.NewEncoder(w).Encode(utils.ErrorResponse{
-							Error: "Email in use",
-						})
-						return
-					} else {
-						if updateUser.Email != "" {
-							userExists.Email = updateUser.Email
-						}
-
-						db.Save(&userExists)
-
-						w.WriteHeader(http.StatusOK)
-
-						err = json.NewEncoder(w).Encode(utils.SucessResponse{
-							Message: "User updated",
-						})
-						return
-					}
-				}
-
 			}
+			userExists := models.User{}
+
+			db.Where(&models.User{Email: email}).First(&userExists)
+
+			if userExists.Email == "" {
+				w.WriteHeader(http.StatusNotFound)
+
+				err = json.NewEncoder(w).Encode(utils.ErrorResponse{
+					Error: "User not found",
+				})
+				return
+			}
+
+			if db.Where("email = ?", updateUser.Email).First(&models.User{}).Error == nil {
+				w.WriteHeader(http.StatusConflict)
+
+				err = json.NewEncoder(w).Encode(utils.ErrorResponse{
+					Error: "Email in use",
+				})
+				return
+			}
+
+			if updateUser.Email != "" {
+				userExists.Email = updateUser.Email
+			}
+
+			if err := db.Save(&userExists).Error; err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(utils.ErrorResponse{Error: "Error updating user"})
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+
+			err = json.NewEncoder(w).Encode(utils.SucessResponse{
+				Message: "User updated",
+			})
+			return
+
 		} else {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 

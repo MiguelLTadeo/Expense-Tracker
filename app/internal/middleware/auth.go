@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func AuthToken(w http.ResponseWriter, r *http.Request, db gorm.DB) (string, error) {
+func AuthToken(w http.ResponseWriter, r *http.Request, db *gorm.DB) (string, error) {
 	authHeader := r.Header.Get("Authorization")
 
 	if authHeader == "" {

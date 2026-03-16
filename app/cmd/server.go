@@ -10,7 +10,8 @@ import (
 
 func main() {
 	db := databaseConn.Init()
-	routes.UserRoutes(*db)
+	routes.UserRoutes(db)
+	routes.ExpenseRoutes(db)
 	http.ListenAndServe(":8080", nil)
 	fmt.Println(db)
 }
