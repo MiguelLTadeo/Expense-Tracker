@@ -236,7 +236,7 @@ func GetExpenseHandler(db *gorm.DB) http.HandlerFunc {
 				return
 			}
 
-			expense := models.Expense{}
+			var expense []models.Expense
 
 			db.Where("id = ? AND user_id = (?)",
 				expenseId,
@@ -245,7 +245,9 @@ func GetExpenseHandler(db *gorm.DB) http.HandlerFunc {
 
 			w.WriteHeader(http.StatusOK)
 
-			err = json.NewEncoder(w).Encode(expense)
+			err = json.NewEncoder(w).Encode(map[string]any{
+				"data": expense,
+			})
 
 		} else {
 			w.WriteHeader(http.StatusMethodNotAllowed)
