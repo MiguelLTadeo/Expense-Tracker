@@ -1,5 +1,5 @@
 [build]
-buildCommand = "go build -ldflags='-w -s' -o out ./cmd/server.go"
+buildCommand = "go build -o out ./cmd/server.go"
 
 [deploy]
 startCommand = "./out"
