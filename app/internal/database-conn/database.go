@@ -10,7 +10,7 @@ import (
 )
 
 func Init() *gorm.DB {
-	dbURL := utils.GoDotEnvVariable("CONN_STR")
+	dbURL := utils.GoDotEnvVariable("DATABASE_URL")
 
 	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 
