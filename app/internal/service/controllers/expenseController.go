@@ -112,7 +112,7 @@ func DeleteExpenseHandler(db *gorm.DB) http.HandlerFunc {
 				return
 			}
 
-			db.Unscoped().Delete(&models.Expense{}, "id = ? AND user_id = ?",
+			db.Unscoped().Delete(&models.Expense{}, "id = ? AND user_id = (?)",
 				expenseId,
 				db.Model(&models.User{}).Select("id").Where("email = ?", email),
 			)
